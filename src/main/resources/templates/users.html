@@ -19,6 +19,7 @@
             <th>Username</th>
             <th>Email</th>
             <th>Role</th>
+            <th th:if="${role == 'ADMIN'}">Actions</th>
         </tr>
     </thead>
 
@@ -28,6 +29,9 @@
         <td th:text="${u.username}"></td>
         <td th:text="${u.email}"></td>
         <td th:text="${u.role}"></td>
+        <td th:if="${role == 'ADMIN'}">
+            <a class="btn btn-outline-dark btn-sm" th:href="@{/users/edit/{id}(id=${u.id})}">Edit</a>
+        </td>
     </tr>
     </tbody>
 </table>

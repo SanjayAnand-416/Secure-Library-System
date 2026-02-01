@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book Requests</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body class="bg-dashboard">
+<div class="container mt-4 page-container">
+
+<h3>Book Requests</h3>
+<p class="text-muted">Requests must be accepted before issuing</p>
+
+<table class="table table-striped table-bordered mt-3">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Student</th>
+            <th>Book</th>
+            <th>Status</th>
+            <th th:if="${role == 'ADMIN' or role == 'LIBRARIAN'}">Active Borrowings</th>
+            <th th:if="${role == 'ADMIN' or role == 'LIBRARIAN'}">Due Dates</th>
+            <th th:if="${role == 'ADMIN' or role == 'LIBRARIAN'}">Overdue</th>
+            <th>Requested</th>
+            <th>Accepted</th>
+            <th>Due</th>
+            <th th:if="${role == 'ADMIN' or role == 'LIBRARIAN'}">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr th:each="req : ${requests}"
+        th:with="active=${activeByUser != null ? activeByUser[req.username] : null}, overdue=${overdueByUser != null ? overdueByUser[req.username] : null}">
+        <td th:text="${req.id}"></td>
+        <td th:text="${req.username}"></td>
+        <td th:text="${req.bookTitle}"></td>
+        <td th:text="${req.status}"></td>
+        <td th:if="${role == 'ADMIN' or role == 'LIBRARIAN'}" th:text="${active != null ? active.size() : 0}"></td>
+        <td th:if="${role == 'ADMIN' or role == 'LIBRARIAN'}">
+            <span th:if="${active == null || active.isEmpty()}">-</span>
+            <div th:if="${active != null && !active.isEmpty()}">
+                <div th:each="a : ${active}">
+                    <span th:text="${a.bookTitle}"></span>
+                    <span th:text="${a.dueDate != null ? ' (due ' + a.dueDate + ')' : ''}"></span>
+                </div>
+            </div>
+        </td>
+        <td th:if="${role == 'ADMIN' or role == 'LIBRARIAN'}">
+            <span th:if="${overdue == null || overdue.isEmpty()}">No</span>
+            <span th:if="${overdue != null && !overdue.isEmpty()}" class="text-danger">Yes</span>
+        </td>
+        <td th:text="${req.requestedAt != null ? #temporals.format(req.requestedAt, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+        <td th:text="${req.acceptedAt != null ? #temporals.format(req.acceptedAt, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+        <td th:text="${req.dueDate != null ? req.dueDate : '-'}"></td>
+        <td th:if="${role == 'ADMIN' or role == 'LIBRARIAN'}">
+            <form th:if="${req.status.name() == 'WAITING'}"
+                  th:action="@{/requests/accept/{id}(id=${req.id})}" method="post" class="d-flex gap-2">
+                <input type="number" class="form-control form-control-sm" name="issueDays" min="1" value="7" required>
+                <button class="btn btn-success btn-sm">Accept</button>
+            </form>
+            <form th:if="${req.status.name() == 'WAITING'}"
+                  th:action="@{/requests/reject/{id}(id=${req.id})}" method="post" class="d-flex gap-2 mt-2">
+                <input type="text" class="form-control form-control-sm" name="reason"
+                       placeholder="Rejection reason">
+                <button class="btn btn-danger btn-sm">Reject</button>
+            </form>
+            <span th:if="${req.status.name() != 'WAITING'}" class="text-muted">No action</span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a href="/dashboard" class="btn btn-secondary">Back</a>
+
+</div>
+</body>
+</html>

@@ -86,16 +86,76 @@
             </div>
         </div>
 
+        <div class="col-md-4" th:if="${role == 'STUDENT'}">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5>My Requests</h5>
+                    <p>Track request status and due dates</p>
+                    <a href="/requests" class="btn btn-outline-dark w-100">View</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4" th:if="${role == 'STUDENT'}">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5>Notifications</h5>
+                    <p>Request decisions and updates</p>
+                    <a href="/notifications" class="btn btn-outline-dark w-100">View</a>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Management Actions -->
     <div class="row mt-4 g-4" th:if="${role == 'ADMIN' or role == 'LIBRARIAN'}">
-        <div class="col-md-4">
+        <div class="col-md-4" th:if="${role == 'ADMIN'}">
             <div class="card action-card">
                 <div class="card-body">
                     <h5>Add Book</h5>
                     <p>Maintain catalog inventory</p>
                     <a href="/books/add" class="btn btn-outline-dark w-100">Add</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4" th:if="${role == 'ADMIN'}">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5>Book Add Requests</h5>
+                    <p>Approve librarian procurement requests</p>
+                    <a href="/book-add-requests" class="btn btn-outline-dark w-100">Review</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4" th:if="${role == 'LIBRARIAN'}">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5>Request New Book</h5>
+                    <p>Submit a book procurement request</p>
+                    <a href="/book-add-requests" class="btn btn-outline-dark w-100">Request</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4" th:if="${role == 'LIBRARIAN'}">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5>Restock Requests</h5>
+                    <p>Request stock for unavailable books</p>
+                    <a href="/restock-requests" class="btn btn-outline-dark w-100">Open</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4" th:if="${role == 'ADMIN'}">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5>Restock Approvals</h5>
+                    <p>Approve or reject restock requests</p>
+                    <a href="/restock-requests" class="btn btn-outline-dark w-100">Review</a>
                 </div>
             </div>
         </div>
@@ -106,6 +166,26 @@
                     <h5>Transactions</h5>
                     <p>Issue and return history</p>
                     <a href="/transactions" class="btn btn-outline-dark w-100">View</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5>Book Requests</h5>
+                    <p>Approve student requests</p>
+                    <a href="/requests" class="btn btn-outline-dark w-100">Open</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card action-card">
+                <div class="card-body">
+                    <h5>Notifications</h5>
+                    <p>Overdue and availability alerts</p>
+                    <a href="/notifications" class="btn btn-outline-dark w-100">View</a>
                 </div>
             </div>
         </div>

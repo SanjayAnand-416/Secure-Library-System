@@ -10,6 +10,12 @@
 <div class="container mt-4 page-container">
 
 <h3>Available Books</h3>
+<div id="request-limit-message"
+     class="alert alert-warning py-2 d-none"
+     th:if="${role == 'STUDENT'}"
+     th:attr="data-last-request-at=${lastRequestAt},data-can-request=${canRequest}">
+    Only one book request is allowed within 24 hours.
+</div>
 
 <table class="table table-bordered mt-3">
     <thead class="table-light">
@@ -26,8 +32,8 @@
             <!-- ADMIN DELETE COLUMN -->
             <th th:if="${role == 'ADMIN'}">Action</th>
 
-            <!-- STUDENT TRANSACTION COLUMN -->
-            <th th:if="${role == 'STUDENT'}">Transaction</th>
+            <!-- STUDENT REQUEST COLUMN -->
+            <th th:if="${role == 'STUDENT'}">Request</th>
         </tr>
     </thead>
 
@@ -56,13 +62,14 @@
             </form>
         </td>
 
-        <!-- STUDENT ISSUE / RETURN -->
+        <!-- STUDENT REQUEST / RETURN -->
         <td th:if="${role == 'STUDENT'}">
-            <form action="/transactions/issue" method="post" class="mb-1">
+            <form action="/requests/create" method="post" class="mb-1">
                 <input type="hidden" name="bookId" th:value="${b.id}">
                 <button class="btn btn-success btn-sm w-100"
+                        th:attr="data-unavailable=${b.availableCopies == 0}"
                         th:disabled="${b.availableCopies == 0}">
-                    Issue
+                    Request
                 </button>
             </form>
 
@@ -81,4 +88,5 @@
 
 </div>
 </body>
+<script src="/js/book-requests.js"></script>
 </html>

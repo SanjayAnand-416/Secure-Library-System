@@ -4,4 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.SecureLibrarySystem.webapp.model.Book;
 
 public interface BookDAO extends JpaRepository<Book, Long> {
+    java.util.List<Book> findByAvailableCopies(int availableCopies);
 }
