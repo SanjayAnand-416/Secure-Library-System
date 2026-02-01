@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login | Secure Library</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body class="auth-split-bg auth-layout">
+<div class="container">
+    <div class="auth-split">
+        <section class="auth-visual">
+            <h2>Welcome to Secure Library</h2>
+            <p>Manage and access library resources with a secure, professional portal built for institutions.</p>
+        </section>
+        <section class="auth-form">
+            <div class="auth-title">User Login</div>
+
+            <div class="alert alert-success"
+                 th:if="${param.registered}">
+                Registration successful. Please login.
+            </div>
+
+            <div class="alert alert-danger"
+                 th:if="${param.error}">
+                Invalid username or password.
+            </div>
+
+            <div class="login-panel" th:classappend="${otpRequired} ? ' hide' : ''">
+                <form action="/auth/login" method="post">
+                    <input class="form-control mb-3" name="username" placeholder="Username" required>
+                    <input class="form-control mb-3" name="password" type="password" placeholder="Password" required>
+
+                    <div class="auth-links">
+                        <a href="/register-page">Create account</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        Verify
+                    </button>
+                </form>
+            </div>
+
+            <div class="otp-panel" th:classappend="${otpRequired} ? ' show' : ''">
+                <div class="auth-title">OTP Verification</div>
+
+                <div class="alert alert-danger"
+                     th:if="${param.otpError}">
+                    Invalid OTP. Please try again.
+                </div>
+
+                <form action="/auth/verify-otp" method="post">
+                    <input type="text" name="otp" class="form-control mb-3" placeholder="Verification code" required>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        Verify OTP
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+</body>
+</html>

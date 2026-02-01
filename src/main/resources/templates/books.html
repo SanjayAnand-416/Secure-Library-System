@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Books</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body class="bg-dashboard">
+<div class="container mt-4 page-container">
+
+<h3>Available Books</h3>
+
+<table class="table table-bordered mt-3">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>ISBN</th>
+            <th>Total</th>
+            <th>Available</th>
+            <th>Status</th>
+            <th>Genre</th>
+
+            <!-- ADMIN DELETE COLUMN -->
+            <th th:if="${role == 'ADMIN'}">Action</th>
+
+            <!-- STUDENT TRANSACTION COLUMN -->
+            <th th:if="${role == 'STUDENT'}">Transaction</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="b : ${books}">
+        <td th:text="${b.id}"></td>
+        <td th:text="${b.title}"></td>
+        <td th:text="${b.author}"></td>
+        <td th:text="${b.isbn}"></td>
+        <td th:text="${b.totalCopies}"></td>
+        <td th:text="${b.availableCopies}"></td>
+        <td>
+            <span class="status-badge"
+                  th:classappend="${b.availableCopies == 0} ? ' unavailable' : ''"
+                  th:text="${b.availableCopies == 0 ? 'Unavailable' : 'Available'}">Available</span>
+        </td>
+        <td th:text="${b.genre}"></td>
+
+        <!-- ADMIN DELETE -->
+        <td th:if="${role == 'ADMIN'}">
+            <form th:action="@{/books/delete/{id}(id=${b.id})}" method="post">
+                <button class="btn btn-danger btn-sm"
+                        onclick="return confirm('Delete this book?')">
+                    Delete
+                </button>
+            </form>
+        </td>
+
+        <!-- STUDENT ISSUE / RETURN -->
+        <td th:if="${role == 'STUDENT'}">
+            <form action="/transactions/issue" method="post" class="mb-1">
+                <input type="hidden" name="bookId" th:value="${b.id}">
+                <button class="btn btn-success btn-sm w-100"
+                        th:disabled="${b.availableCopies == 0}">
+                    Issue
+                </button>
+            </form>
+
+            <form action="/transactions/return" method="post">
+                <input type="hidden" name="bookId" th:value="${b.id}">
+                <button class="btn btn-warning btn-sm w-100">
+                    Return
+                </button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a href="/dashboard" class="btn btn-secondary mt-3">Back</a>
+
+</div>
+</body>
+</html>
