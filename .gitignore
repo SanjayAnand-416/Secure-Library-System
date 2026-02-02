@@ -40,3 +40,5 @@ build/
 application.properties
 .idea/
 .vscode/
+# Spring Boot secrets
+application-secret.properties
