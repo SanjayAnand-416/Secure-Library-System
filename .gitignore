@@ -37,8 +37,19 @@ build/
 /bin/
 *.log
 .env
-application.properties
 .idea/
 .vscode/
+
 # Spring Boot secrets
-application-secret.properties
+**/application-secret.properties
+
+# SSL/TLS certificates and keys
+*.p12
+*.cer
+*.jks
+keys/
+mysql-init.txt
+
+# Weak passwords file
+weakpasswords.txt
+**/weak-passwords.txt
