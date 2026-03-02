@@ -11,12 +11,16 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String title;
+    
+    @Convert(converter = AESEncryptConverter.class)
     private String author;
 
     @Convert(converter = AESEncryptConverter.class)
     private String isbn;   // 🔐 encrypted automatically
 
+    @Convert(converter = AESEncryptConverter.class)
     private String genre;
 
     private int totalCopies;

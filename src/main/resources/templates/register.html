@@ -16,6 +16,21 @@
         <section class="auth-form">
             <div class="auth-title">User Registration</div>
 
+            <div class="alert alert-warning"
+                 th:if="${param.usernameExists}">
+                You already have an account with this username. Please <a href="/login-page">login here</a>.
+            </div>
+
+            <div class="alert alert-warning"
+                 th:if="${param.emailExists}">
+                You already have an account with this email. Please <a href="/login-page">login here</a>.
+            </div>
+
+            <div class="alert alert-danger"
+                 th:if="${param.error}">
+                Registration failed. Please try again.
+            </div>
+
             <form action="/auth/register" method="post">
                 <input class="form-control mb-3" name="username" placeholder="Username" required>
                 <input id="register-password" class="form-control mb-2" name="password" type="password" placeholder="Password" required>

@@ -12,6 +12,7 @@ import com.SecureLibrarySystem.webapp.dao.UserDAO;
 import com.SecureLibrarySystem.webapp.model.User;
 
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 
 @Controller
 @RequestMapping("/auth")
@@ -41,13 +42,19 @@ public class AuthController {
 
         Role userRole = Role.valueOf(role.toUpperCase());
 
-        boolean success = registerService.registerUser(
+        RegisterService.RegisterResult result = registerService.registerUser(
                 username, password, userRole, email
         );
 
-        return success
-                ? "redirect:/login-page?registered=true"
-                : "redirect:/register-page?error=true";
+        if (result == RegisterService.RegisterResult.SUCCESS) {
+            return "redirect:/login-page?registered=true";
+        } else if (result == RegisterService.RegisterResult.USERNAME_EXISTS) {
+            return "redirect:/register-page?usernameExists=true";
+        } else if (result == RegisterService.RegisterResult.EMAIL_EXISTS) {
+            return "redirect:/register-page?emailExists=true";
+        } else {
+            return "redirect:/register-page?error=true";
+        }
     }
 
     @PostMapping("/login")
@@ -86,7 +93,19 @@ public class AuthController {
             return "redirect:/login-page?otpError=true";
         }
 
-        User user = userDAO.findByEmail(effectiveEmail);
+        // Email is encrypted in DB, so find user by iterating after decryption
+        List<User> allUsers = userDAO.findAll();
+        User user = null;
+        for (User u : allUsers) {
+            if (u.getEmail() != null && u.getEmail().equals(effectiveEmail)) {
+                user = u;
+                break;
+            }
+        }
+
+        if (user == null) {
+            return "redirect:/login-page?otpError=true";
+        }
 
         session.removeAttribute("OTP_REQUIRED");
         session.removeAttribute("otpEmail");

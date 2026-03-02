@@ -8,6 +8,7 @@ import com.SecureLibrarySystem.webapp.hashing.PasswordHasher;
 import com.SecureLibrarySystem.webapp.model.User;
 
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 
 @Service
 public class LoginService {
@@ -24,7 +25,17 @@ public class LoginService {
 
     public boolean loginAndSendOtp(String username, String password) {
 
-        User user = userDAO.findByUsername(username);
+        // Since username is encrypted in database, we need to fetch all users
+        // and find the matching one after decryption (JPA converter handles decryption)
+        List<User> allUsers = userDAO.findAll();
+        User user = null;
+        
+        for (User u : allUsers) {
+            if (u.getUsername() != null && u.getUsername().equals(username)) {
+                user = u;
+                break;
+            }
+        }
 
         if (user == null) return false;
 

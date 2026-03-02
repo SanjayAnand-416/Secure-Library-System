@@ -13,6 +13,14 @@ public class AESEncryptConverter implements AttributeConverter<String, String> {
 
     @Override
     public String convertToEntityAttribute(String dbData) {
-        return dbData == null ? null : AESUtil.decrypt(dbData);
+        if (dbData == null) {
+            return null;
+        }
+        try {
+            return AESUtil.decrypt(dbData);
+        } catch (Exception e) {
+            // If decryption fails, return the data as-is (likely plain text from old records)
+            return dbData;
+        }
     }
 }

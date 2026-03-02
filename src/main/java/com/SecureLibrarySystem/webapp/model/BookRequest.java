@@ -3,6 +3,7 @@ package com.SecureLibrarySystem.webapp.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.SecureLibrarySystem.webapp.crypto.AESEncryptConverter;
 
 @Entity
 @Table(name = "book_requests")
@@ -12,10 +13,12 @@ public class BookRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String username;
 
     private Long bookId;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String bookTitle;
 
     @Enumerated(EnumType.STRING)
@@ -31,6 +34,7 @@ public class BookRequest {
 
     private Integer issueDays;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String approvedBy;
 
     @PrePersist

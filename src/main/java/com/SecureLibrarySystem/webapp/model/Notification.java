@@ -1,6 +1,7 @@
 package com.SecureLibrarySystem.webapp.model;
 
 import com.SecureLibrarySystem.webapp.authorization.Role;
+import com.SecureLibrarySystem.webapp.crypto.AESEncryptConverter;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -15,6 +16,7 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private Role targetRole;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String targetUsername;
 
     @Enumerated(EnumType.STRING)
@@ -23,6 +25,7 @@ public class Notification {
     private Long referenceId;
 
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = AESEncryptConverter.class)
     private String message;
 
     private LocalDateTime createdAt;

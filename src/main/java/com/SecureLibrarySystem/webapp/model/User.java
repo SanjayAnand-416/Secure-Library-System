@@ -2,6 +2,7 @@ package com.SecureLibrarySystem.webapp.model;
 
 import jakarta.persistence.*;
 import com.SecureLibrarySystem.webapp.authorization.Role;
+import com.SecureLibrarySystem.webapp.crypto.AESEncryptConverter;
 
 @Entity
 @Table(name = "users")
@@ -19,6 +20,7 @@ public class User {
 		this.id = id;
 	}
 
+    @Convert(converter = AESEncryptConverter.class)
     private String username;
 
     @Column(name = "password_hash")
@@ -26,6 +28,7 @@ public class User {
 
     private String salt;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String email;
 
     @Enumerated(EnumType.STRING)

@@ -2,6 +2,7 @@ package com.SecureLibrarySystem.webapp.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.SecureLibrarySystem.webapp.crypto.AESEncryptConverter;
 
 @Entity
 @Table(name = "restock_requests")
@@ -13,10 +14,13 @@ public class RestockRequest {
 
     private Long bookId;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String bookTitle;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String bookIsbn;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String requestedBy;
 
     private int quantity;
@@ -31,6 +35,7 @@ public class RestockRequest {
 
     private LocalDateTime decidedAt;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String decidedBy;
 
     @PrePersist

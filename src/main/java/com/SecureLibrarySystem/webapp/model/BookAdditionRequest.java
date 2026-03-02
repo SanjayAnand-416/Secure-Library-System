@@ -2,6 +2,7 @@ package com.SecureLibrarySystem.webapp.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.SecureLibrarySystem.webapp.crypto.AESEncryptConverter;
 
 @Entity
 @Table(name = "book_addition_requests")
@@ -11,14 +12,19 @@ public class BookAdditionRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String requestedBy;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String title;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String author;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String isbn;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String genre;
 
     private int totalCopies;
@@ -30,6 +36,7 @@ public class BookAdditionRequest {
 
     private LocalDateTime approvedAt;
 
+    @Convert(converter = AESEncryptConverter.class)
     private String approvedBy;
 
     @PrePersist
