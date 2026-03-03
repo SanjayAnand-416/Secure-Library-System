@@ -1,0 +1,54 @@
+LOGIN CREDENTIAL VALIDATION FIX
+================================
+
+ISSUE:
+Users entering correct credentials were still receiving "Invalid credential" errors
+even though the backend was properly connected.
+
+ROOT CAUSE:
+The back-button protection code was clearing OTP session state too aggressively:
+- After user submitted correct username/password, AuthController.login() would redirect to /otp-page
+- But PageController.loginPage() was unconditionally clearing OTP_REQUIRED, otpEmail, and loginUser
+- Even though the redirect was to /otp-page, if the template showed login form during OTP flow,
+  it would lose the OTP session state
+
+SOLUTION:
+Modified the login flow to preserve OTP state during active OTP challenges:
+
+1. PageController.loginPage():
+   - Now checks if user is in active OTP flow (OTP_REQUIRED = true)
+   - Only clears OTP state if NOT in active flow
+   - This preserves the OTP context while still protecting against back-button misuse
+
+2. PageController.otpPage():
+   - Kept logic to verify OTP_REQUIRED flag is set before allowing access
+   - Authenticated users are redirected to dashboard (prevents post-auth back-button access)
+   - Users without active OTP flow are redirected to login
+
+3. AuthController.login():
+   - Simplified to rely on LoginService to set all session attributes
+   - LoginService already sets: OTP_REQUIRED=true, otpEmail, username, role
+   - Removed redundant session.setAttribute() calls
+
+4. AuthController.verifyOtp():
+   - Already had guard check for OTP_REQUIRED flag
+
+FLOW AFTER FIX:
+1. User enters username/password at /login-page
+2. POST to /auth/login calls loginService.loginAndSendOtp()
+3. LoginService validates credentials and sets: OTP_REQUIRED=true, otpEmail, username, role
+4. Redirect to /otp-page?sent=true
+5. /otp-page GET checks OTP_REQUIRED flag exists, renders OTP form
+6. User enters OTP
+7. POST to /auth/verify-otp validates and sets AUTHENTICATED=true
+8. Redirect to /dashboard
+
+BACK-BUTTON PROTECTION:
+- If user is authenticated (AUTHENTICATED=true) and tries to visit /login-page, session is invalidated
+- If user is authenticated and tries to visit /otp-page, they're redirected to /dashboard
+- JSESSIONID cookie is cleared on logout to force re-authentication
+
+TESTING:
+- mvn compile: SUCCESS
+- mvn test: SUCCESS (1 test run, 0 failures)
+- All existing functionality preserved

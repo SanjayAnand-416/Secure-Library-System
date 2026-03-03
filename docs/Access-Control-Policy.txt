@@ -1,0 +1,113 @@
+ACCESS CONTROL POLICY & JUSTIFICATION
+SecureLibrarySystem
+
+Document Version: 1.0
+Date: March 3, 2026
+System: SecureLibrarySystem (Spring Boot 4.0.2 / Java 21)
+Classification: Internal Security Document
+
+=================================================================
+1. PURPOSE
+=================================================================
+This document defines the access control policy for the
+SecureLibrarySystem web application. It specifies roles, permissions,
+and security justifications. The policy follows the Principle of Least
+Privilege: users receive only the minimum access needed for their role.
+
+=================================================================
+2. AUTHENTICATION REQUIREMENTS
+=================================================================
+All protected resources require:
+- Valid username + password (SHA-256 hash + random 16-byte salt)
+- Email-based OTP verification (6-digit OTP via Gmail SMTP)
+- Active session (Spring HTTP Session with AUTHENTICATED = true)
+- Cache bypass prevention (Cache-Control headers on responses)
+
+Rules:
+- Unauthenticated access to protected URLs redirects to /login-page.
+- Authenticated users visiting /login-page, /register-page, or /otp-page
+  are redirected to /dashboard.
+
+=================================================================
+3. ROLES DEFINED
+=================================================================
+Roles in Role.java:
+- ADMIN: full system control and governance
+- LIBRARIAN: day-to-day operational control
+- STUDENT: borrower/end user
+
+=================================================================
+4. ACCESS RIGHTS (SUMMARY)
+=================================================================
+Public endpoints (no login):
+- GET  /, /login-page, /register-page, /otp-page
+- POST /auth/register, /auth/login, /auth/verify-otp (with OTP_REQUIRED)
+- GET  /auth/logout (authenticated users)
+
+Role permissions:
+- /dashboard: ADMIN, LIBRARIAN, STUDENT
+- /books: all authenticated roles
+- /books/add, /books/delete/{id}: ADMIN only
+- /requests/create: STUDENT only
+- /requests/accept/{id}, /requests/reject/{id}: ADMIN, LIBRARIAN
+- /book-add-requests/create: LIBRARIAN only
+- /book-add-requests/approve/{id}: ADMIN only
+- /restock-requests/create: LIBRARIAN only
+- /restock-requests/approve/{id}, /restock-requests/reject/{id}: ADMIN only
+- /users/edit/{id}: ADMIN only
+
+Data visibility:
+- STUDENT: own requests/transactions/notifications only
+- LIBRARIAN: operational visibility; own submission limits where applicable
+- ADMIN: full visibility and approval authority
+
+=================================================================
+5. DATA-LEVEL ACCESS CONTROL
+=================================================================
+Row-level controls are enforced server-side:
+- Students can view only their own requests and transactions.
+- Librarians can view all borrow requests/transactions, and own
+  book-add/restock submissions where designed.
+- Admins can view all operational data.
+
+=================================================================
+6. SENSITIVE DATA PROTECTION
+=================================================================
+- Username and email: AES-256/CBC/PKCS5Padding at rest
+- Passwords: SHA-256 + salt (never plaintext)
+- OTP: single-use and email-delivered
+- Session state: server-side HttpSession only
+- Transactions: RSA digital signatures for tamper detection
+- Private keys: stored in /keys/ outside web root
+
+=================================================================
+7. SECURITY CONTROL SUMMARY
+=================================================================
+Implemented controls include:
+- MFA (password + OTP)
+- Session invalidation on logout
+- Cache-control headers to prevent back-button bypass
+- Server-side role checks on all protected endpoints
+- Separation of duties for approval workflows
+- Data minimization by role
+- Audit trail and transaction tamper detection
+- JPA/Hibernate parameterized data access
+
+=================================================================
+8. ROLE ASSIGNMENT POLICY
+=================================================================
+- Self-registration creates STUDENT by default.
+- Only ADMIN can change roles via /users/edit/{id}.
+- Users cannot elevate their own role.
+
+=================================================================
+9. JUSTIFICATION SUMMARY
+=================================================================
+- Students cannot manage catalogue (least privilege).
+- Students cannot approve own requests (conflict-of-interest control).
+- Only admin can edit roles (privilege-escalation prevention).
+- Approval workflows enforce four-eyes principle.
+- OTP and no-cache protections strengthen session security.
+- Salted password hashing follows cryptographic best practice.
+
+End of Document

@@ -23,6 +23,11 @@ public class TransactionViewController {
     @GetMapping("/transactions")
     public String viewTransactions(HttpSession session, Model model) {
 
+        Boolean auth = (Boolean) session.getAttribute("AUTHENTICATED");
+        if (auth == null || !auth) {
+            return "redirect:/login-page";
+        }
+
         String role = (String) session.getAttribute("role");
         String username = (String) session.getAttribute("username");
 

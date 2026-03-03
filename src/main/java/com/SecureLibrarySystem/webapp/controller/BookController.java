@@ -29,6 +29,11 @@ public class BookController {
     @GetMapping
     public String viewBooks(Model model, HttpSession session) {
 
+        Boolean auth = (Boolean) session.getAttribute("AUTHENTICATED");
+        if (auth == null || !auth) {
+            return "redirect:/login-page";
+        }
+
         String role = (String) session.getAttribute("role");
 
         model.addAttribute("role", role);

@@ -11,6 +11,8 @@ import com.SecureLibrarySystem.webapp.authorization.Role;
 import com.SecureLibrarySystem.webapp.dao.UserDAO;
 import com.SecureLibrarySystem.webapp.model.User;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
@@ -66,10 +68,11 @@ public class AuthController {
         boolean valid = loginService.loginAndSendOtp(username, password);
 
         if (valid) {
-            session.setAttribute("loginUser", username);
-            session.setAttribute("OTP_REQUIRED", true);
-            return "redirect:/login-page";
+            // Credentials verified; OTP state already set in session by LoginService
+            // loginService sets: OTP_REQUIRED=true, otpEmail, username, role
+            return "redirect:/otp-page?sent=true";
         }
+        // Invalid credentials
         return "redirect:/login-page?error=true";
     }
 
@@ -78,33 +81,37 @@ public class AuthController {
        ====================== */
     @PostMapping("/verify-otp")
     public String verifyOtp(
-            @RequestParam(required = false) String email,
             @RequestParam String otp,
             HttpSession session) {
 
-        String sessionEmail = (String) session.getAttribute("otpEmail");
-        String effectiveEmail = (email != null && !email.isBlank()) ? email : sessionEmail;
-
-        if (effectiveEmail == null || effectiveEmail.isBlank()) {
-            return "redirect:/login-page?otpError=true";
+        Boolean otpRequired = (Boolean) session.getAttribute("OTP_REQUIRED");
+        if (otpRequired == null || !otpRequired) {
+            return "redirect:/login-page";
         }
 
-        if (!emailOTPService.verifyOTP(effectiveEmail, otp)) {
-            return "redirect:/login-page?otpError=true";
+        // Always use the session email — it is the exact key used to store the OTP
+        String sessionEmail = (String) session.getAttribute("otpEmail");
+
+        if (sessionEmail == null || sessionEmail.isBlank()) {
+            return "redirect:/login-page";
+        }
+
+        if (!emailOTPService.verifyOTP(sessionEmail, otp)) {
+            return "redirect:/otp-page?error=true";
         }
 
         // Email is encrypted in DB, so find user by iterating after decryption
         List<User> allUsers = userDAO.findAll();
         User user = null;
         for (User u : allUsers) {
-            if (u.getEmail() != null && u.getEmail().equals(effectiveEmail)) {
+            if (u.getEmail() != null && u.getEmail().equals(sessionEmail)) {
                 user = u;
                 break;
             }
         }
 
         if (user == null) {
-            return "redirect:/login-page?otpError=true";
+            return "redirect:/otp-page?error=true";
         }
 
         session.removeAttribute("OTP_REQUIRED");
@@ -117,8 +124,14 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
+    public String logout(HttpSession session, HttpServletResponse response) {
         session.invalidate();
+
+        Cookie cookie = new Cookie("JSESSIONID", "");
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
         return "redirect:/login-page";
     }
 }

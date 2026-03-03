@@ -44,6 +44,7 @@ public class LoginService {
             session.setAttribute("username", user.getUsername());
             session.setAttribute("role", user.getRole().name());
             session.setAttribute("otpEmail", user.getEmail());
+            session.setAttribute("OTP_REQUIRED", true);
 
             emailOTPService.sendOTP(user.getEmail());
             return true;
